@@ -1,14 +1,13 @@
-package com.afterpay.martech.utils;
+package org.apache.cassandra.cql3.functions.types;
 
-import com.afterpay.martech.utils.exceptions.SerialisationException;
-import com.afterpay.martech.utils.serialize.RoaringBitmapSerialiser;
+import org.apache.cassandra.cql3.functions.types.serialize.RoaringBitmapSerialiser;
+import org.apache.cassandra.exceptions.SerialisationException;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Contains a method for converting version 0.1.5 serialised RoaringBitmaps into
@@ -110,9 +109,9 @@ public final class RoaringBitmapUtils {
         }
     }
 
-    public static long countMRB(List<MutableRoaringBitmap> mrbs) {
+    public static Long countMRB(List<MutableRoaringBitmap> mrbs) {
         if (null == mrbs || mrbs.size() == 0) {
-            return 0;
+            return 0L;
         }
         MutableRoaringBitmap mrb0 = mrbs.get(0);
         for (int i = 1; i < mrbs.size(); i++) {
@@ -121,20 +120,47 @@ public final class RoaringBitmapUtils {
         return mrb0.getLongCardinality();
     }
 
-    public static long extractDistinct(List<String> strList) {
-        if (null == strList || strList.size() == 0) {
-            return 0;
+    public static Long countMRB(String str) {
+        byte[] byteStr = Base64.getDecoder().decode(str);
+        MutableRoaringBitmap mrb;
+        try {
+            mrb = SERIALISER.deserialise(byteStr);
+        } catch (SerialisationException e) {
+            System.out.println("SerialisationException" + e);
+            return null;
         }
-        List<MutableRoaringBitmap> mrbs = strList.stream().map(RoaringBitmapUtils::getRMB).collect(Collectors.toList());
 
-        return countMRB(mrbs);
+        return mrb.getLongCardinality();
     }
+
+    public static String getDistinctStr(String res, String distinStr) {
+        MutableRoaringBitmap origin = new MutableRoaringBitmap();
+        if (res != null) {
+            origin = getRMB(res);
+        }
+        MutableRoaringBitmap mrb = getRMB(distinStr);
+        origin.or(mrb);
+        res = generateMRBStr(origin);
+        return res;
+    }
+
 
     public static String generateMRBStr(List<Long> ids) {
         int[] offsets = ids.stream()
                 .mapToInt(Long::intValue)
                 .toArray();
         MutableRoaringBitmap mrb = MutableRoaringBitmap.bitmapOf(offsets);
+        mrb.runOptimize();
+        byte[] bytes = new byte[0];
+        try {
+            bytes = SERIALISER.serialise(mrb);
+        } catch (SerialisationException e) {
+            e.printStackTrace();
+        }
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    public static String generateMRBStr(MutableRoaringBitmap mrb) {
         mrb.runOptimize();
         byte[] bytes = new byte[0];
         try {

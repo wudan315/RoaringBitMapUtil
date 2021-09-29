@@ -1,4 +1,4 @@
-package com.afterpay.martech.utils.serialize;
+package org.apache.cassandra.cql3.functions.types.serialize;
 
 /*
  * Copyright 2017-2020 Crown Copyright
@@ -16,12 +16,9 @@ package com.afterpay.martech.utils.serialize;
  * limitations under the License.
  */
 
-
-
-import com.afterpay.martech.utils.RoaringBitmapUtils;
-import com.afterpay.martech.utils.exceptions.SerialisationException;
+import org.apache.cassandra.cql3.functions.types.RoaringBitmapUtils;
+import org.apache.cassandra.exceptions.SerialisationException;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
-
 import java.io.*;
 
 

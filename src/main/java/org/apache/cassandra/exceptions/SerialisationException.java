@@ -1,4 +1,4 @@
-package com.afterpay.martech.utils.exceptions;
+package org.apache.cassandra.exceptions;
 
 import java.io.IOException;
 

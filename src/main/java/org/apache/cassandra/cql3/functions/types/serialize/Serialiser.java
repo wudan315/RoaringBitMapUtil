@@ -1,8 +1,6 @@
-package com.afterpay.martech.utils.serialize;
+package org.apache.cassandra.cql3.functions.types.serialize;
 
-
-
-import com.afterpay.martech.utils.exceptions.SerialisationException;
+import org.apache.cassandra.exceptions.SerialisationException;
 
 import java.io.Serializable;
 
